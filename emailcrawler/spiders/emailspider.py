@@ -4,17 +4,38 @@ import sys
 import re
 import scrapy_cloudflare_middleware
 from extruct.w3cmicrodata import MicrodataExtractor
+import json
+
+
+data = {}
 
 class EmailspiderSpider(scrapy.Spider):
+    
     name = 'emailspider'
     allowed_domains = ['']
-    start_urls = ['https://google.com/search?q=']
+    start_urls = ['']
+    # count = 0
+    # file1 = open('websites.txt', 'r')
+    # for line in file1:
+    #     count += 1
+    #     print("Line{}: {}".format(count, line.strip()))
+    #     start_urls.append(line.strip())
+
+    
 
     def start_requests(self):
         # headers= {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'}
-        query = input("Enter your query: ")
-        for url in self.start_urls:
-            yield scrapy.Request("{}{}".format(url, query))
+        print("Using for loop")
+        # Opening file
+        file1 = open('websites.txt', 'r')
+
+        count2 = 0
+        for line in file1:
+            count2 += 1
+            print("Line{}: {}".format(count2, line.strip()))
+
+            for url in self.start_urls:
+                yield scrapy.Request("{}{}".format(url, line.strip()))
 
     def parse(self, response):
         url_to_follow = response.css(".r>a::attr(href)").extract()
@@ -33,6 +54,7 @@ class EmailspiderSpider(scrapy.Spider):
                 break
 
     def parse_email(self, response):
+
         html_str = response.text
         emails = self.extract_email(html_str)
         phone_no = self.extract_phone_number(html_str)
@@ -49,18 +71,25 @@ class EmailspiderSpider(scrapy.Spider):
         # if(relative_url.find('logo') == True):
         relative_url = "http://"+relative_url
         print(relative_url)
-
         # if logo use meta tag
         # mde = MicrodataExtractor()
         # data = mde.extract(html_str)
 
+        # with open("data.json", "w") as filee:
+        #     filee.write('[')
+        #     json.dump({
+        #         "website": response.url,
+        #         "emails": emails,
+        #         "phone numbers": phone_no,
+        #     }, filee) 
+
+            # filee.write(']')
 
         yield{
             "website": response.url,
             "emails": emails,
             "phone numbers": phone_no,
             "logos": relative_url
-
         }
 
     def extract_email(self, html_as_str):
