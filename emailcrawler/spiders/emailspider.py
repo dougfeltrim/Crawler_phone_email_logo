@@ -34,8 +34,8 @@ class EmailspiderSpider(scrapy.Spider):
             count2 += 1
             print("Line{}: {}".format(count2, line.strip()))
 
-            for url in self.start_urls:
-                yield scrapy.Request("{}{}".format(url, line.strip()))
+        for url in self.start_urls:
+            yield scrapy.Request("{}{}".format(url, line.strip()))
 
     def parse(self, response):
         url_to_follow = response.css(".r>a::attr(href)").extract()
